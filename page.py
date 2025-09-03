@@ -1,0 +1,225 @@
+import streamlit as st
+from pathlib import Path
+import datetime
+import re
+
+# ==============================
+# CONFIG PAGE
+# ==============================
+st.set_page_config(
+    page_title="Mon site d'articles",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# ==============================
+# LOGO
+# ==============================
+BASE_DIR = Path(__file__).parent
+logo_path = BASE_DIR / "clin_doeil.png"  # ton logo dans le dossier de base
+
+# ==============================
+# NAVIGATION SIMPLE
+# ==============================
+if "page" not in st.session_state:
+    st.session_state.page = "Accueil"
+if "article_selected" not in st.session_state:
+    st.session_state.article_selected = None
+if "btn_clicked" not in st.session_state:
+    st.session_state.btn_clicked = {}
+
+col1, col2, col3, col4 = st.columns([1,1,1,1])
+with col1:
+    if st.button("🏠 Accueil"):
+        st.session_state.page = "Accueil"
+        st.session_state.article_selected = None
+        st.session_state.btn_clicked = {}
+with col2:
+    if st.button("📰 Articles"):
+        st.session_state.page = "Articles"
+        st.session_state.article_selected = None
+        st.session_state.btn_clicked = {}
+with col3:
+    if st.button("👥 Qui sommes-nous"):
+        st.session_state.page = "Qui sommes-nous"
+        st.session_state.article_selected = None
+        st.session_state.btn_clicked = {}
+with col4:
+    if st.button("📬 Contact"):
+        st.session_state.page = "Contact"
+        st.session_state.article_selected = None
+        st.session_state.btn_clicked = {}
+
+page = st.session_state.page
+
+# ==============================
+# CHARGER ARTICLES
+# ==============================
+def charger_articles():
+    articles_dir = BASE_DIR / "articles"
+    dossiers = {
+        "Interviews": articles_dir / "interviews",
+        "Reportages": articles_dir / "reportages",
+        "Comptes rendus": articles_dir / "comptes_rendus",
+    }
+
+    articles = []
+    for categorie, chemin in dossiers.items():
+        if chemin.exists():
+            for fichier in chemin.glob("*.md"):
+                mtime = fichier.stat().st_mtime
+                with open(fichier, "r", encoding="utf-8") as f:
+                    contenu = f.read()
+                lignes = contenu.split("\n")
+                titre = lignes[0].replace("#", "").strip() or fichier.stem
+                contenu_sans_titre = "\n".join(lignes[1:])
+
+                # Cherche image dans Markdown
+                match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_sans_titre)
+                if match_img:
+                    img_rel_path = match_img.group(1)
+                    img_abs_path = (articles_dir / img_rel_path).resolve()
+                    image_path = str(img_abs_path) if img_abs_path.exists() else None
+                else:
+                    image_path = None
+
+                # Cherche lien YouTube
+                match_video = re.search(r"(https?://(www\.)?youtube\.com/watch\?v=[\w-]+)", contenu_sans_titre)
+                youtube_link = match_video.group(1) if match_video else None
+
+                articles.append((titre, contenu_sans_titre, datetime.datetime.fromtimestamp(mtime),
+                                 categorie, fichier, image_path, youtube_link))
+
+    articles.sort(key=lambda x: x[2], reverse=True)
+    return articles
+
+# ==============================
+# AFFICHER LES CARDS
+# ==============================
+def afficher_cards(articles):
+    for i in range(0, len(articles), 3):  # créer les lignes par blocs de 3
+        cols = st.columns(3)
+        for j, article in enumerate(articles[i:i+3]):
+            titre, contenu, date, categorie, fichier, image_path, youtube_link = article
+            with cols[j]:
+                st.markdown(f"**{titre}**")
+                st.markdown(f"*{categorie}*")
+                if image_path:
+                    st.image(image_path, use_container_width=True)
+                else:
+                    st.image("https://via.placeholder.com/150", use_container_width=True)
+
+                key_name = f"btn_{i+j}"
+                if key_name not in st.session_state.btn_clicked:
+                    st.session_state.btn_clicked[key_name] = False
+
+                if st.button("Lire", key=key_name) or st.session_state.btn_clicked[key_name]:
+                    st.session_state.article_selected = article
+                    st.session_state.btn_clicked[key_name] = True
+
+# ==============================
+# AFFICHER ARTICLE SELECTIONNE
+# ==============================
+def afficher_article():
+    titre, contenu, date, categorie, fichier, image_path, youtube_link = st.session_state.article_selected
+    st.markdown(f"# {titre}")
+    st.markdown(f"*{categorie} – {date.strftime('%d/%m/%Y')}*")
+    if image_path:
+        st.image(image_path, use_container_width=True)
+    if youtube_link:
+        st.video(youtube_link, start_time=0)
+    st.markdown(contenu, unsafe_allow_html=True)
+    if st.button("⬅️ Retour"):
+        st.session_state.article_selected = None
+        st.session_state.btn_clicked = {}
+
+# ==============================
+# PAGE ACCUEIL
+# ==============================
+if page == "Accueil":
+    st.title("Accueil")
+    st.subheader("Bienvenue sur Clin d'Oeil ! Voici les derniers articles publiés :")
+    articles = charger_articles()
+    if st.session_state.article_selected:
+        afficher_article()
+    elif articles:
+        afficher_cards(articles[:6])
+
+# ==============================
+# PAGE ARTICLES
+# ==============================
+elif page == "Articles":
+    st.title("📰 Tous les articles")
+    articles = charger_articles()
+    if not articles:
+        st.info("Aucun article disponible.")
+    else:
+        categories = ["Toutes", "Interviews", "Reportages", "Comptes rendus"]
+        filtre = st.selectbox("Filtrer par catégorie :", categories)
+        if filtre != "Toutes":
+            articles = [a for a in articles if a[3] == filtre]
+
+        if st.session_state.article_selected:
+            afficher_article()
+        else:
+            afficher_cards(articles)
+
+# ==============================
+# PAGE QUI SOMMES-NOUS
+# ==============================
+elif page == "Qui sommes-nous":
+    st.title("👥 Qui sommes-nous")
+
+    # Section 1: Notre mission
+    st.header("Notre mission")
+    st.write(
+        "Nous sommes une agence média spécialisée dans le sport, avec une passion particulière pour le football en Occitanie et Toulouse. "
+        "Notre mission est de couvrir tous les aspects du sport local, en offrant des articles de qualité, des interviews exclusives et des reportages détaillés, "
+        "tout en donnant la parole aux acteurs de tous niveaux, des plus petits clubs aux grandes infrastructures."
+    )
+    st.image("10.jpeg", width=400)
+
+    # Section 2: Nos activités
+    st.header("Nos activités")
+    st.write(
+        "- **Reportages** : nous allons sur le terrain pour raconter l'actualité des clubs et des compétitions.\n"
+        "- **Interviews** : nous donnons la parole à tous les acteurs du sport, des joueurs aux entraîneurs et dirigeants, amateurs comme professionnels.\n"
+        "- **Comptes rendus** : nous analysons et résumons les matchs et événements sportifs."
+    )
+    st.image("3.jpeg", width=400)
+
+    # Section 3: Notre couverture
+    st.header("Notre couverture")
+    st.write(
+        "Nous suivons de près le football dans toute la région Occitanie, mais nous couvrons également tous types de sports et événements. "
+        "Nous mettons en lumière tant les clubs amateurs que les structures professionnelles, pour que nos lecteurs restent informés et connectés à l'actualité sportive locale."
+    )
+    st.image("6.jpeg", width=400)
+
+    # Section 4: Notre approche
+    st.header("Notre approche")
+    st.write(
+        "Notre équipe combine passion, professionnalisme et curiosité pour créer des contenus riches et engageants. "
+        "Chaque article est pensé pour captiver le lecteur tout en offrant une information fiable, complète et proche du terrain."
+    )
+    st.image("8.jpeg", width=300)
+
+# ==============================
+# PAGE CONTACT
+# ==============================
+elif page == "Contact":
+    st.title("📬 Contact")
+    st.image("clin_doeil.png", width=150)
+    st.write("Vous pouvez nous joindre par mail : clindoeil327@gmail.com")
+    
+    st.markdown(
+        'Ou via les réseaux sociaux en cliquant sur les logos : '
+        '[<img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="24"/>](https://www.instagram.com/clin_doeil) Instagram '
+        '&nbsp;&nbsp;'
+        '[<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="24"/>](https://www.youtube.com/@c0ach-amin) YouTube',
+        unsafe_allow_html=True
+    )
+
+    st.write("Merci de ta visite !")
+    st.write("© 2024 Clin d'Oeil")
+
