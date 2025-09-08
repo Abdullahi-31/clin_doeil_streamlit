@@ -83,15 +83,25 @@ def charger_articles():
                 else:
                     image_path = None
 
-                # Cherche lien YouTube
-                match_video = re.search(r"(https?://(www\.)?youtube\.com/watch\?v=[\w-]+)", contenu_sans_titre)
-                youtube_link = match_video.group(1) if match_video else None
-
                 articles.append((titre, contenu_sans_titre, datetime.datetime.fromtimestamp(mtime),
-                                 categorie, fichier, image_path, youtube_link))
+                                 categorie, fichier, image_path))
 
     articles.sort(key=lambda x: x[2], reverse=True)
     return articles
+
+# ==============================
+# REMPLACER YOUTUBE PAR IFRAME
+# ==============================
+def embed_youtube_links(contenu):
+    def replacer(match):
+        url = match.group(1)
+        video_id = url.split("v=")[-1]
+        return f"""
+        <iframe width="100%" height="400" 
+        src="https://www.youtube.com/embed/{video_id}" 
+        frameborder="0" allowfullscreen></iframe>
+        """
+    return re.sub(r"(https?://(www\.)?youtube\.com/watch\?v=[\w-]+)", replacer, contenu)
 
 # ==============================
 # AFFICHER LES CARDS
@@ -100,7 +110,7 @@ def afficher_cards(articles):
     for i in range(0, len(articles), 3):  # créer les lignes par blocs de 3
         cols = st.columns(3)
         for j, article in enumerate(articles[i:i+3]):
-            titre, contenu, date, categorie, fichier, image_path, youtube_link = article
+            titre, contenu, date, categorie, fichier, image_path = article
             with cols[j]:
                 st.markdown(f"**{titre}**")
                 st.markdown(f"*{categorie}*")
@@ -118,14 +128,16 @@ def afficher_cards(articles):
 # AFFICHER ARTICLE SELECTIONNE
 # ==============================
 def afficher_article():
-    titre, contenu, date, categorie, fichier, image_path, youtube_link = st.session_state.article_selected
+    titre, contenu, date, categorie, fichier, image_path = st.session_state.article_selected
     st.markdown(f"# {titre}")
     st.markdown(f"*{categorie} – {date.strftime('%d/%m/%Y')}*")
     if image_path:
         st.image(image_path, use_container_width=True)
-    if youtube_link:
-        st.video(youtube_link, start_time=0)
-    st.markdown(contenu, unsafe_allow_html=True)
+
+    # On transforme les liens YouTube en iframe
+    contenu_embed = embed_youtube_links(contenu)
+    st.markdown(contenu_embed, unsafe_allow_html=True)
+
     if st.button("⬅️ Retour"):
         st.session_state.article_selected = None
         st.session_state.btn_clicked = {}
