@@ -28,7 +28,7 @@ if "article_selected" not in st.session_state:
 if "btn_clicked" not in st.session_state:
     st.session_state.btn_clicked = {}
 
-col1, col2, col3, col4 = st.columns([1,1,1,1])
+col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 with col1:
     if st.button("🏠 Accueil"):
         st.session_state.page = "Accueil"
@@ -89,7 +89,7 @@ def charger_articles():
 
                 contenu_sans_titre = "\n".join(lignes[1:])
 
-                # Cherche image dans Markdown
+                # Cherche uniquement la première image pour la vignette
                 match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_sans_titre)
                 image_path = str((articles_dir / match_img.group(1)).resolve()) if match_img else None
 
@@ -140,11 +140,19 @@ def afficher_article():
     titre, contenu, date, categorie, fichier, image_path = st.session_state.article_selected
     st.markdown(f"# {titre}")
     st.markdown(f"*{categorie} – {date.strftime('%d/%m/%Y')}*")
-    if image_path:
-        st.image(image_path, use_container_width=True)
 
-    contenu_embed = embed_youtube_links(contenu)
-    st.markdown(contenu_embed, unsafe_allow_html=True)
+    # Afficher toutes les images dans le contenu
+    lignes = contenu.split("\n")
+    for ligne in lignes:
+        match_img = re.match(r"!\[.*?\]\((images/.*?)\)", ligne)
+        if match_img:
+            img_path = (BASE_DIR / "articles" / match_img.group(1)).resolve()
+            if img_path.exists():
+                st.image(str(img_path), use_container_width=True)
+        else:
+            # Transformer YouTube si besoin
+            ligne = embed_youtube_links(ligne)
+            st.markdown(ligne, unsafe_allow_html=True)
 
     if st.button("⬅️ Retour"):
         st.session_state.article_selected = None
