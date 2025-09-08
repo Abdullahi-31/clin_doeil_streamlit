@@ -143,7 +143,6 @@ def afficher_article():
     if image_path:
         st.image(image_path, use_container_width=True)
 
-    # On transforme les liens YouTube en iframe
     contenu_embed = embed_youtube_links(contenu)
     st.markdown(contenu_embed, unsafe_allow_html=True)
 
@@ -188,7 +187,6 @@ elif page == "Articles":
 elif page == "Qui sommes-nous":
     st.title("👥 Qui sommes-nous")
 
-    # Section 1: Notre mission
     st.header("Notre mission")
     st.write(
         "Nous sommes une agence média spécialisée dans le sport, avec une passion particulière pour le football en Occitanie et Toulouse. "
@@ -197,7 +195,6 @@ elif page == "Qui sommes-nous":
     )
     st.image("10.jpeg", width=400)
 
-    # Section 2: Nos activités
     st.header("Nos activités")
     st.write(
         "- **Reportages** : nous allons sur le terrain pour raconter l'actualité des clubs et des compétitions.\n"
@@ -206,7 +203,6 @@ elif page == "Qui sommes-nous":
     )
     st.image("3.jpeg", width=400)
 
-    # Section 3: Notre couverture
     st.header("Notre couverture")
     st.write(
         "Nous suivons de près le football dans toute la région Occitanie, mais nous couvrons également tous types de sports et événements. "
@@ -214,7 +210,6 @@ elif page == "Qui sommes-nous":
     )
     st.image("6.jpeg", width=400)
 
-    # Section 4: Notre approche
     st.header("Notre approche")
     st.write(
         "Notre équipe combine passion, professionnalisme et curiosité pour créer des contenus riches et engageants. "
