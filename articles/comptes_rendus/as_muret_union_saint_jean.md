@@ -2,7 +2,7 @@
 
 ![Description](images/victoire_saint_jean.jpeg)
 
-Date : 2025/09/08
+Date: 2025/09/08
 
 Dans un après-midi ensoleillé au stade Clément Ader, l’AS Muret accueillait l’Union Saint-Jean pour l’ouverture de la première journée de Régional 1. Deux équipes qui veulent marquer les esprits d’entrée.
 

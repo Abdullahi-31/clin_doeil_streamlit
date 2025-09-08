@@ -2,7 +2,7 @@
 
 ![Description](images/3f550.jpg)
 
-Date : 2025/09/01
+Date: 2025/09/01
 
 Le jeune joueur de l'US Bagatelle, Ael Belangote signe son contrat et va donc rejoindre le centre de formation du TFC à partir de la rentrée de 2023. Le président du club vainqueur de la Ligue 2, Damien Comoli, est venu assisté à la signature du contrat auprès du président Mohamad Hamami. Les deux hommes ont loué la relation entre les deux clubs. Damien Comoli réponds à nos questions concernant le centre de formation du club et de son orientation.
 
