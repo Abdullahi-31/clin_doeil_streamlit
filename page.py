@@ -16,7 +16,7 @@ st.set_page_config(
 # LOGO
 # ==============================
 BASE_DIR = Path(__file__).parent
-logo_path = BASE_DIR / "clin_doeil.png"  # ton logo dans le dossier de base
+logo_path = BASE_DIR / "clin_doeil.png"
 
 # ==============================
 # NAVIGATION SIMPLE
@@ -68,34 +68,37 @@ def charger_articles():
         if chemin.exists():
             for fichier in chemin.glob("*.md"):
                 with open(fichier, "r", encoding="utf-8") as f:
-                    contenu = f.read()
-                lignes = contenu.split("\n")
+                    lignes = f.readlines()
+
                 titre = lignes[0].replace("#", "").strip() or fichier.stem
 
                 # Cherche la date dans le Markdown (format: Date: YYYY/MM/DD)
-                date_str = None
-                for ligne in lignes:
+                date_article = None
+                contenu_sans_date = []
+                for ligne in lignes[1:]:
                     if ligne.lower().startswith("date:"):
                         date_str = ligne.split(":", 1)[1].strip()
-                        break
+                        try:
+                            date_article = datetime.datetime.strptime(date_str, "%Y/%m/%d")
+                        except ValueError:
+                            st.warning(f"Date invalide dans {fichier.name}, utilisez YYYY/MM/DD")
+                            date_article = datetime.datetime(1970,1,1)
+                    else:
+                        contenu_sans_date.append(ligne)
 
-                if date_str:
-                    try:
-                        date_article = datetime.datetime.strptime(date_str, "%Y/%m/%d")
-                    except ValueError:
-                        date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
-                else:
-                    date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
+                if date_article is None:
+                    st.warning(f"Aucune date trouvée dans {fichier.name}, utilisation 1970-01-01")
+                    date_article = datetime.datetime(1970,1,1)
 
-                contenu_sans_titre = "\n".join(lignes[1:])
+                contenu_final = "".join(contenu_sans_date)
 
                 # Cherche image dans Markdown
-                match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_sans_titre)
+                match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_final)
                 image_path = str((articles_dir / match_img.group(1)).resolve()) if match_img else None
 
-                articles.append((titre, contenu_sans_titre, date_article, categorie, fichier, image_path))
+                articles.append((titre, contenu_final, date_article, categorie, fichier, image_path))
 
-    # Trier par date du Markdown (la plus récente en premier)
+    # Trier par date décroissante
     articles.sort(key=lambda x: x[2], reverse=True)
     return articles
 
@@ -190,7 +193,7 @@ elif page == "Qui sommes-nous":
     st.header("Notre mission")
     st.write(
         "Nous sommes une agence média spécialisée dans le sport, avec une passion particulière pour le football en Occitanie et Toulouse. "
-        "Notre mission est de couvrir tous les aspects du sport local, en offrant des articles de qualité, des interviews exclusives et des reportages détaillés, "
+        "Notre mission est de couvrir tous les aspects du sport local, en offrant des articles de qualités, des interviews exclusives et des reportages détaillés, "
         "tout en donnant la parole aux acteurs de tous niveaux, des plus petits clubs aux grandes infrastructures."
     )
     st.image("10.jpeg", width=400)
