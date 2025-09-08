@@ -2,6 +2,8 @@
 
 ![Description](images/victoire_saint_jean.jpeg)
 
+Date : 2025/09/08
+
 Dans un après-midi ensoleillé au stade Clément Ader, l’AS Muret accueillait l’Union Saint-Jean pour l’ouverture de la première journée de Régional 1. Deux équipes qui veulent marquer les esprits d’entrée.
 
 Dès le début de la rencontre, Muret prend le jeu à son compte et impose son rythme. Les occasions s’enchaînent : Jean-Baptiste Ounas parvient à se défaire de deux adversaires sur le côté gauche de la surface avant de tenter une frappe qui fuit le cadre. Après un bon ballon dans la profondeur, Martin Dufon lancé réussi à centrer en retrait parfaitement pour Bilal Fezari qui manque sa frappe. C’est ensuite Dylan Kinima qui, après un coup franc joué rapidement, manque lui aussi la cible.

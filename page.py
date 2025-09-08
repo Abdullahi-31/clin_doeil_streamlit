@@ -53,7 +53,7 @@ with col4:
 page = st.session_state.page
 
 # ==============================
-# CHARGER ARTICLES
+# CHARGER ARTICLES AVEC DATE DU MD
 # ==============================
 def charger_articles():
     articles_dir = BASE_DIR / "articles"
@@ -67,25 +67,35 @@ def charger_articles():
     for categorie, chemin in dossiers.items():
         if chemin.exists():
             for fichier in chemin.glob("*.md"):
-                mtime = fichier.stat().st_mtime
                 with open(fichier, "r", encoding="utf-8") as f:
                     contenu = f.read()
                 lignes = contenu.split("\n")
                 titre = lignes[0].replace("#", "").strip() or fichier.stem
+
+                # Cherche la date dans le Markdown (format: Date: YYYY/MM/DD)
+                date_str = None
+                for ligne in lignes:
+                    if ligne.lower().startswith("date:"):
+                        date_str = ligne.split(":", 1)[1].strip()
+                        break
+
+                if date_str:
+                    try:
+                        date_article = datetime.datetime.strptime(date_str, "%Y/%m/%d")
+                    except ValueError:
+                        date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
+                else:
+                    date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
+
                 contenu_sans_titre = "\n".join(lignes[1:])
 
                 # Cherche image dans Markdown
                 match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_sans_titre)
-                if match_img:
-                    img_rel_path = match_img.group(1)
-                    img_abs_path = (articles_dir / img_rel_path).resolve()
-                    image_path = str(img_abs_path) if img_abs_path.exists() else None
-                else:
-                    image_path = None
+                image_path = str((articles_dir / match_img.group(1)).resolve()) if match_img else None
 
-                articles.append((titre, contenu_sans_titre, datetime.datetime.fromtimestamp(mtime),
-                                 categorie, fichier, image_path))
+                articles.append((titre, contenu_sans_titre, date_article, categorie, fichier, image_path))
 
+    # Trier par date du Markdown (la plus récente en premier)
     articles.sort(key=lambda x: x[2], reverse=True)
     return articles
 
@@ -107,20 +117,19 @@ def embed_youtube_links(contenu):
 # AFFICHER LES CARDS
 # ==============================
 def afficher_cards(articles):
-    for i in range(0, len(articles), 3):  # créer les lignes par blocs de 3
+    for i in range(0, len(articles), 3):
         cols = st.columns(3)
         for j, article in enumerate(articles[i:i+3]):
             titre, contenu, date, categorie, fichier, image_path = article
             with cols[j]:
                 st.markdown(f"**{titre}**")
-                st.markdown(f"*{categorie}*")
+                st.markdown(f"*{categorie} – {date.strftime('%d/%m/%Y')}*")
                 if image_path:
                     st.image(image_path, use_container_width=True)
                 else:
                     st.image("https://via.placeholder.com/150", use_container_width=True)
 
                 key_name = f"btn_{i+j}"
-                # Cliquer une seule fois pour ouvrir l'article
                 if st.button("Lire", key=key_name):
                     st.session_state.article_selected = article
 
