@@ -110,12 +110,9 @@ def afficher_cards(articles):
                     st.image("https://via.placeholder.com/150", use_container_width=True)
 
                 key_name = f"btn_{i+j}"
-                if key_name not in st.session_state.btn_clicked:
-                    st.session_state.btn_clicked[key_name] = False
-
-                if st.button("Lire", key=key_name) or st.session_state.btn_clicked[key_name]:
+                # Cliquer une seule fois pour ouvrir l'article
+                if st.button("Lire", key=key_name):
                     st.session_state.article_selected = article
-                    st.session_state.btn_clicked[key_name] = True
 
 # ==============================
 # AFFICHER ARTICLE SELECTIONNE
@@ -214,7 +211,7 @@ elif page == "Contact":
     
     st.markdown(
         'Ou via les réseaux sociaux en cliquant sur les logos : '
-        '[<img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="24"/>](https://www.instagram.com/clin_doeil) Instagram '
+        '[<img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="24"/>](https://www.instagram.com/clind_oeil31/) Instagram '
         '&nbsp;&nbsp;'
         '[<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="24"/>](https://www.youtube.com/@c0ach-amin) YouTube',
         unsafe_allow_html=True
@@ -222,4 +219,3 @@ elif page == "Contact":
 
     st.write("Merci de ta visite !")
     st.write("© 2024 Clin d'Oeil")
-
