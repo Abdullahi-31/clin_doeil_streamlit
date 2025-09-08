@@ -16,7 +16,7 @@ st.set_page_config(
 # LOGO
 # ==============================
 BASE_DIR = Path(__file__).parent
-logo_path = BASE_DIR / "clin_doeil.png"
+logo_path = BASE_DIR / "clin_doeil.png"  # ton logo dans le dossier de base
 
 # ==============================
 # NAVIGATION SIMPLE
@@ -68,37 +68,34 @@ def charger_articles():
         if chemin.exists():
             for fichier in chemin.glob("*.md"):
                 with open(fichier, "r", encoding="utf-8") as f:
-                    lignes = f.readlines()
-
+                    contenu = f.read()
+                lignes = contenu.split("\n")
                 titre = lignes[0].replace("#", "").strip() or fichier.stem
 
                 # Cherche la date dans le Markdown (format: Date: YYYY/MM/DD)
-                date_article = None
-                contenu_sans_date = []
-                for ligne in lignes[1:]:
+                date_str = None
+                for ligne in lignes:
                     if ligne.lower().startswith("date:"):
                         date_str = ligne.split(":", 1)[1].strip()
-                        try:
-                            date_article = datetime.datetime.strptime(date_str, "%Y/%m/%d")
-                        except ValueError:
-                            st.warning(f"Date invalide dans {fichier.name}, utilisez YYYY/MM/DD")
-                            date_article = datetime.datetime(1970,1,1)
-                    else:
-                        contenu_sans_date.append(ligne)
+                        break
 
-                if date_article is None:
-                    st.warning(f"Aucune date trouvée dans {fichier.name}, utilisation 1970-01-01")
-                    date_article = datetime.datetime(1970,1,1)
+                if date_str:
+                    try:
+                        date_article = datetime.datetime.strptime(date_str, "%Y/%m/%d")
+                    except ValueError:
+                        date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
+                else:
+                    date_article = datetime.datetime.fromtimestamp(fichier.stat().st_mtime)
 
-                contenu_final = "".join(contenu_sans_date)
+                contenu_sans_titre = "\n".join(lignes[1:])
 
                 # Cherche image dans Markdown
-                match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_final)
+                match_img = re.search(r"!\[.*?\]\((images/.*?)\)", contenu_sans_titre)
                 image_path = str((articles_dir / match_img.group(1)).resolve()) if match_img else None
 
-                articles.append((titre, contenu_final, date_article, categorie, fichier, image_path))
+                articles.append((titre, contenu_sans_titre, date_article, categorie, fichier, image_path))
 
-    # Trier par date décroissante
+    # Trier par date du Markdown (la plus récente en premier)
     articles.sort(key=lambda x: x[2], reverse=True)
     return articles
 
