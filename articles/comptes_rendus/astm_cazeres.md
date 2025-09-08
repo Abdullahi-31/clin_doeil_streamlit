@@ -14,7 +14,7 @@ Avant la mi-temps, les locaux se créent une nouvelle opportunité. Après une t
 
 L’ASTM rentre aux vestiaires avec un avantage au score, tandis que les Cazériens restent en embuscade.
 
-![Description](images\us_cazeres_photos.jpeg)
+![Description](images/us_cazeres_photos.jpeg)
 
 Dès la reprise, Walid Gorinet signe une percée dans l’axe et talonne pour Abdrahim, dont la frappe est arrêtée par Alexandre Florens. Cazères tente de répondre sur coup de pied arrêté. Après l’obtention d’un coup franc bien placé, Cabartier Lambert tente sa chance, mais sa frappe passe à côté. Les visiteurs se compliquent ensuite la tâche avec l’expulsion de Citron Dorian.
 
