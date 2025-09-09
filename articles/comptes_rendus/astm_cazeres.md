@@ -24,9 +24,9 @@ Finalement, Ismael fait le break. Sur un ballon récupéré, Hamza élimine son 
 
 En supériorité numérique, l’ASTM gère et s’impose logiquement 2-0. Un succès prometteur pour lancer la saison, avant un déplacement à Carbonne. Touché mais pas abattu, Cazères aura l’occasion de réagir face à Blagnac.
 
-
 **Interviews** :
 
+https://www.youtube.com/watch?v=vlpFkx_9meo
 
 **Feuille de match** :
 
