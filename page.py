@@ -141,14 +141,14 @@ def afficher_article():
     st.markdown(f"# {titre}")
     st.markdown(f"*{categorie} – {date.strftime('%d/%m/%Y')}*")
 
-    # Afficher toutes les images dans le contenu
+    # Afficher toutes les images dans le contenu avec une largeur réduite
     lignes = contenu.split("\n")
     for ligne in lignes:
         match_img = re.match(r"!\[.*?\]\((images/.*?)\)", ligne)
         if match_img:
             img_path = (BASE_DIR / "articles" / match_img.group(1)).resolve()
             if img_path.exists():
-                st.image(str(img_path), use_container_width=True)
+                st.image(str(img_path), width=700)  # ✅ taille réduite
         else:
             # Transformer YouTube si besoin
             ligne = embed_youtube_links(ligne)
