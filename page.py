@@ -243,3 +243,4 @@ elif page == "Contact":
 
     st.write("Merci de ta visite !")
     st.write("© 2024 Clin d'Oeil")
+    
