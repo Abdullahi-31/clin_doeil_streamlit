@@ -1,6 +1,6 @@
 # **Coupe de France : Bagatelle s’impose avec la manière face à Pradines (10-1)**
 
-![Description](images/victoire_saint_jean.jpeg)
+![Description](images/bagatelle.jpeg)
 
 Date: 2025/09/14
 
